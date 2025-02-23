@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hochzeitsgeschenke</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .gift {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .gift img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 10px 0;
+        }
+        .gift input {
+            width: 100px;
+            padding: 5px;
+        }
+        .gift button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .gift button:disabled {
+            background-color: #ccc;
+        }
+        .success-message {
+            display: none;
+            margin-top: 10px;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hochzeitsgeschenke</h1>
+
+    <div class="gift">
+        <h3>Postautofahrt auf den Etzel (voll bei 600.-)</h3>
+        <img src="https://www.tramoldtimer-basel.ch/images/gut/Wagen4_wohlgemuth_ag.jpg" alt="Postauto">
+        <input type="number" id="postauto" placeholder="Betrag eingeben">
+        <button onclick="donate('Postautofahrt auf den Etzel', '600', 'postauto')">Beitrag spenden</button>
+        <p id="postautoStatus">Aktuell gespendet: 0 / 600</p>
+        <div class="success-message" id="postautoSuccess">Vielen Dank für deinen großzügigen Beitrag! Gerne darfst du den geschenkten Betrag per Twint an Laura Heimgartner (079 843 34 90) zustellen.</div>
+    </div>
+
+    <div class="gift">
+        <h3>Windeln für das erste Jahr (voll bei 1000.-)</h3>
+        <img src="https://image.eltern.de/12803790/t/yc/v3/w1440/r1.5/-/stiftung-warentest-testet-windeln.jpg" alt="Windeln">
+        <input type="number" id="windeln" placeholder="Betrag eingeben">
+        <button onclick="donate('Windeln für das erste Jahr', '1000', 'windeln')">Beitrag spenden</button>
+        <p id="windelnStatus">Aktuell gespendet: 0 / 1000</p>
+        <div class="success-message" id="windelnSuccess">Vielen Dank für deinen großzügigen Beitrag! Gerne darfst du den geschenkten Betrag per Twint an Laura Heimgartner (079 843 34 90) zustellen.</div>
+    </div>
+
+    <div class="gift">
+        <h3>Ferienwohnung für den ersten Familienurlaub (voll bei 1500.-)</h3>
+        <img src="https://www.bodenseeferien.de/storage/image/3/6/63_ferienwohnungen_bofe-header_1BVLIY_f83KGk.jpg" alt="Ferienwohnung">
+        <input type="number" id="ferienwohnung" placeholder="Betrag eingeben">
+        <button onclick="donate('Ferienwohnung für den ersten Familienurlaub', '1500', 'ferienwohnung')">Beitrag spenden</button>
+        <p id="ferienwohnungStatus">Aktuell gespendet: 0 / 1500</p>
+        <div class="success-message" id="ferienwohnungSuccess">Vielen Dank für deinen großzügigen Beitrag! Gerne darfst du den geschenkten Betrag per Twint an Laura Heimgartner (079 843 34 90) zustellen.</div>
+    </div>
+
+    <div class="gift">
+        <h3>Porsche GT3 RS (voll bei 250'000.-)</h3>
+        <img src="https://rsrbooking.com/storage/cars/kQ5QMHvm1s6OKHKy7c7vyTTS4QkenqNmAQHvmXB3.jpg" alt="Porsche GT3 RS">
+        <input type="number" id="porsche" placeholder="Betrag eingeben">
+        <button onclick="donate('Porsche GT3 RS', '250000', 'porsche')">Beitrag spenden</button>
+        <p id="porscheStatus">Aktuell gespendet: 0 / 250000</p>
+        <div class="success-message" id="porscheSuccess">Vielen Dank für deinen großzügigen Beitrag! Gerne darfst du den geschenkten Betrag per Twint an Laura Heimgartner (079 843 34 90) zustellen.</div>
+    </div>
+
+    <div class="gift">
+        <h3>Ein Beitrag zum Traum vom Eigenheim (voll bei 2'500'000.-)</h3>
+        <img src="https://i.ds.at/GZb8bQ/rs:fill:750:0/plain/2017/03/28/hausamland.jpg" alt="Haus">
+        <input type="number" id="haus" placeholder="Betrag eingeben">
+        <button onclick="donate('Ein Beitrag zum Traum vom Eigenheim', '2500000', 'haus')">Beitrag spenden</button>
+        <p id="hausStatus">Aktuell gespendet: 0 / 2500000</p>
+        <div class="success-message" id="hausSuccess">Vielen Dank für deinen großzügigen Beitrag! Gerne darfst du den geschenkten Betrag per Twint an Laura Heimgartner (079 843 34 90) zustellen.</div>
+    </div>
+
+    <script>
+        var apiURL = "https://script.google.com/macros/s/AKfycbwGDEh8Zov9z5SA_aG-GbLW2UE34CUv0DBdZXNLYr9w2dkr-CuleXgh5gB_gOhGaWBTbg/exec";
+
+        function donate(gift, maxAmount, elementId) {
+            var amount = document.getElementById(elementId).value;
+            if (amount === "" || isNaN(amount)) {
+                alert("Bitte einen gültigen Betrag eingeben.");
+                return;
+            }
+
+            var data = {
+                gift: gift,
+                amount: Number(amount)
+            };
+
+            fetch(apiURL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(response => {
+                if (response.status === "success") {
+                    updateStatus(gift, maxAmount, amount, elementId);
+                } else {
+                    alert("Fehler beim Senden des Beitrags.");
+                }
+            })
+            .catch(error => {
+                console.error("Fehler beim Senden des Beitrags:", error);
+                alert("Fehler beim Senden des Beitrags.");
+            });
+        }
+
+        function updateStatus(gift, maxAmount, donatedAmount, elementId) {
+            var statusElement = document.getElementById(elementId + "Status");
+            var successElement = document.getElementById(elementId + "Success");
+            var totalDonated = Number(donatedAmount);
+
+            // Update status text
+            statusElement.textContent = "Aktuell gespendet: " + totalDonated + " / " + maxAmount;
+
+            // Show success message if fully funded
+            if (totalDonated >= maxAmount) {
+                statusElement.textContent = "Vollständig geschenkt!";
+                successElement.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>
