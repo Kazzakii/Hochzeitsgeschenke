@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Hochzeitsgeschenke Wunschliste</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .gift {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-bottom: 20px;
+      background: #fff;
+      border-radius: 8px;
+      max-width: 400px;
+      width: 100%;
+    }
+    .gift img {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .gift h3 {
+      margin-top: 0;
+    }
+    progress {
+      width: 100%;
+      height: 20px;
+      margin-bottom: 10px;
+    }
+    .donation-form input[type="number"] {
+      padding: 5px;
+      margin-right: 10px;
+    }
+    .donation-form button {
+      padding: 5px 10px;
+    }
+    .thank-you {
+      color: green;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Unsere Hochzeitsgeschenke Wunschliste</h1>
+  <div id="giftContainer">
+    <!-- Die Geschenk-Elemente werden hier eingefügt -->
+  </div>
+
+  <script>
+    const apiURL = 'https://script.google.com/macros/s/AKfycbycNnX-vg8qZ_8cXlbQoV_kOr7QJj5XGCQCWk3SdwMRXjaCL2J0aWFI-kwCoOEmT-4_Ew/exec';
+
+    const giftsWithImages = {
+      "Postautofahrt auf den Etzel": "https://www.tramoldtimer-basel.ch/images/gut/Wagen4_wohlgemuth_ag.jpg",
+      "Windeln für das erste Jahr": "https://image.eltern.de/12803790/t/yc/v3/w1440/r1.5/-/stiftung-warentest-testet-windeln.jpg",
+      "Ferienwohnung für den ersten Familienurlaub": "https://www.bodenseeferien.de/storage/image/3/6/63_ferienwohnungen_bofe-header_1BVLIY_f83KGk.jpg",
+      "Porsche GT3 RS": "https://rsrbooking.com/storage/cars/kQ5QMHvm1s6OKHKy7c7vyTTS4QkenqNmAQHvmXB3.jpg",
+      "Ein Beitrag zum Traum vom Eigenheim": "https://i.ds.at/GZb8bQ/rs:fill:750:0/plain/2017/03/28/hausamland.jpg"
+    };
+
+    function loadGifts() {
+      fetch(apiURL)
+        .then(response => response.json())
+        .then(data => renderGifts(data))
+        .catch(err => console.error("Fehler beim Laden der Daten:", err));
+    }
+
+    function renderGifts(gifts) {
+      const container = document.getElementById('giftContainer');
+      container.innerHTML = '';
+
+      gifts.forEach(gift => {
+        const giftDiv = document.createElement('div');
+        giftDiv.className = 'gift';
+
+        const title = document.createElement('h3');
+        title.textContent = gift.gift;
+        giftDiv.appendChild(title);
+
+        const img = document.createElement('img');
+        img.src = giftsWithImages[gift.gift] || '';
+        img.alt = gift.gift;
+        giftDiv.appendChild(img);
+
+        const progress = document.createElement('progress');
+        progress.max = gift.max;
+        progress.value = gift.current;
+        giftDiv.appendChild(progress);
+
+        const progressText = document.createElement('p');
+        progressText.textContent = gift.current >= gift.max ? "Vollständig geschenkt" : `${gift.current}.- / ${gift.max}.- gespendet`;
+        giftDiv.appendChild(progressText);
+
+        const form = document.createElement('form');
+        form.className = 'donation-form';
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const input = e.target.querySelector('input[name="amount"]');
+          const amount = parseFloat(input.value);
+          if (isNaN(amount) || amount <= 0) return;
+
+          fetch(apiURL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ gift: gift.gift, amount: amount })
+          })
+          .then(response => response.json())
+          .then(result => {
+            if (result.status === 'success') {
+              const thankYou = document.createElement('div');
+              thankYou.className = 'thank-you';
+              thankYou.textContent = "Vielen Dank für deinen grosszügigen Beitrag! Gerne darfst du den geschenkten Betrag per Twint an Laura Heimgartner (079 843 34 90) zustellen.";
+              giftDiv.appendChild(thankYou);
+
+              gift.current += amount;
+              if (gift.current > gift.max) gift.current = gift.max;
+              progress.value = gift.current;
+              progressText.textContent = gift.current >= gift.max ? "Vollständig geschenkt" : `${gift.current}.- / ${gift.max}.- gespendet`;
+              input.value = '';
+            }
+          })
+          .catch(err => console.error("Fehler beim Senden des Beitrags.", err));
+        });
+
+        const amountInput = document.createElement('input');
+        amountInput.type = 'number';
+        amountInput.name = 'amount';
+        amountInput.placeholder = 'Betrag';
+        amountInput.required = true;
+        form.appendChild(amountInput);
+
+        const submitButton = document.createElement('button');
+        submitButton.type = 'submit';
+        submitButton.textContent = 'Beitrag senden';
+        form.appendChild(submitButton);
+
+        giftDiv.appendChild(form);
+        container.appendChild(giftDiv);
+      });
+    }
+
+    loadGifts();
+  </script>
+</body>
+</html>
